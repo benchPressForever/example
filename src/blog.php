@@ -133,6 +133,8 @@ function searchForPosts()
     }
 }
 
+
+
 function deletePost(){
     $DbFileName = dirname(__DIR__)."/db.txt";
 
