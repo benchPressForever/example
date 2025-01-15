@@ -1,0 +1,21 @@
+{
+    "name": "msi/example",
+    "authors": [
+        {
+            "name": "nikita"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+      "ext-pdo": "*",
+      "ext-readline": "*"
+    },
+    "autoload": {
+        "files": [
+            "src/blog.php",
+            "src/helpers.php",
+            "src/main.php",
+            "src/quiz.php"
+        ]
+    }
+}
