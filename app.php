@@ -1,9 +1,7 @@
 <?php
 
 
-require_once 'src/blog.php';
-require_once 'src/helpers.php';
-require_once 'src/main.php';
+require_once "vendor/autoload.php";
 
 $result = main();
 

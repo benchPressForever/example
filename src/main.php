@@ -27,6 +27,7 @@ function parseComand(): string {
         'clear-posts' => 'clearPosts',
         'search-posts' => 'searchForPosts',
         'delete-post' => 'deletePost',
+        'quiz' => 'Quiz',
     ];
 
     if (isset($_SERVER['argv'][1]) && isset($commands[$_SERVER['argv'][1]])) {

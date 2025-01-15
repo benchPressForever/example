@@ -1,5 +1,7 @@
 <?php
 
+$ini_array = parse_ini_file(dirname(__DIR__)."/config.ini");
+$GLOBALS['PathDb'] = $ini_array['path_db'];
 
 function addPost()
 {
@@ -15,7 +17,7 @@ function addPost()
         else echo handlerError("Ошибка!Пустая строка");
     }
 
-    $DbFileName = dirname(__DIR__)."/db.txt";
+    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
 
     if(is_readable($DbFileName)){
         $file = fopen($DbFileName, "a");
@@ -29,7 +31,7 @@ function addPost()
 
 function readAllPosts()
 {
-    $DbFileName = dirname(__DIR__)."/db.txt";
+    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
 
     if(is_readable($DbFileName)) {
         $file = fopen($DbFileName, "r");
@@ -54,7 +56,7 @@ function readAllPosts()
 
 function readPost()
 {
-    $DbFileName = dirname(__DIR__)."/db.txt";
+    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
 
     if(is_readable($DbFileName)) {
         $file = fopen($DbFileName, "r");
@@ -92,7 +94,7 @@ function readPost()
 
 function clearPosts()
 {
-    $DbFileName = dirname(__DIR__)."/db.txt";
+    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
     if(is_readable($DbFileName)) {
         $file = fopen($DbFileName, "w");
         fwrite($file, "");
@@ -104,7 +106,7 @@ function clearPosts()
 
 function searchForPosts()
 {
-    $DbFileName = dirname(__DIR__)."/db.txt";
+    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
 
     if(is_readable($DbFileName)) {
         $file = fopen($DbFileName, "r");
@@ -136,7 +138,7 @@ function searchForPosts()
 
 
 function deletePost(){
-    $DbFileName = dirname(__DIR__)."/db.txt";
+    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
 
     if(is_readable($DbFileName)) {
         $file = fopen($DbFileName, "r");
@@ -158,6 +160,8 @@ function deletePost(){
         else{
             return handlerError("Ошибка!Пост не существует!");
         }
+
+        $readArray[] = "";
 
         file_put_contents($DbFileName, implode("\n",$readArray));
 

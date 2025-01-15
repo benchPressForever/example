@@ -16,6 +16,7 @@ function handlerHelp():string
     clear-posts - удалить посты
     search-posts - поиск постов по заголовку
     delete-post - удалить пост (по id)
+    quiz - игра-викторина
 HELP;
 
     return $help;
