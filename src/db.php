@@ -39,19 +39,12 @@ function seedDB():string
 
     $db->query("DELETE FROM posts;");
     $db->query("DELETE FROM categories;");
-    $db->query("INSERT INTO categories VALUES (1, 'News'),(2, 'Politics'),(3, 'Sport');");
 
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 1', 'Text text lorem', 1);");
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 2', 'Text text lorem', 1);");
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 3', 'Text text lorem', 1);");
-
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 4', 'Text text lorem', 2);");
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 5', 'Text text lorem', 2);");
-
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 6', 'Text text lorem', 3);");
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 7', 'Text text lorem', 3);");
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 8', 'Text text lorem', 3);");
-    $db->query("INSERT INTO posts (title, text, id_category) VALUES ('Title 9', 'Text text lorem', 3);");
-
+    for($i = 1;$i <= 5;$i++ ) {
+        $db->query("INSERT INTO categories VALUES ($i, 'Category_Name_{$i}');");
+        for($j = ($i-1)*10 + 1;$j <= $i*10;$j++ ) {
+            $db->query("INSERT INTO posts (title, text, id_category) VALUES  ('Title_{$j}', 'Text text lorem_{$j}', $i);");
+        }
+    }
     return "Данные успешно добавлены!";
 }
