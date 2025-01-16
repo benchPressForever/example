@@ -48,7 +48,7 @@ function readAllPosts():string
     $result = $stmt->fetchAll();
 
     foreach($result as $post){
-        echo $post['post_id']." - ".$post['category']." - ".$post['title']." - ".$post['text']."\n";
+        echo $post['post_id']." - ".$post['title']." - ".$post['text']." - ".$post['cat_id']." - ".$post['category']."\n";
     }
 
     return "\nВсе посты успешно получены!\n";
@@ -70,7 +70,7 @@ function readPost():string
     if(empty($post)){
         return "Пост с id = $id не найден";
     }
-    return $post['post_id']." - ".$post['category']." - ".$post['title']." - ".$post['text']."\n";
+    return $post['post_id']." - ".$post['title']." - ".$post['text']." - ".$post['cat_id']." - ".$post['category']."\n";
 
 }
 
