@@ -33,6 +33,12 @@ function parseComand(): string {
         'quiz' => 'Quiz',
         'init' => 'initDB',
         'seed' => 'seedDB',
+        'read-category' => 'readСategory',
+        'clear-categories' => 'clearСategories',
+        'search-categories' => 'searchСategories',
+        'delete-category' => 'deleteСategory',
+        'add-category' => 'addСategory',
+        'read-categories' => 'readAllСategories',
         default => 'handlerHelp',
     };
 }

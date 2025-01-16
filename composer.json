@@ -12,7 +12,8 @@
     },
     "autoload": {
         "files": [
-            "src/blog.php",
+            "src/post_services.php",
+            "src/categories_services.php",
             "src/helpers.php",
             "src/main.php",
             "src/quiz.php",
