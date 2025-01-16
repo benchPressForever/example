@@ -20,7 +20,10 @@ function main():string
 //Этот вариант использует ассоциативный массив для сопоставления аргументов командной строки с именами функций.
 //Это, как правило, немного быстрее, чем `match`, особенно при большом количестве вариантов.
 function parseComand(): string {
-    $commands = [
+
+    $command = $_SERVER['argv'][1] ?? 'help';
+
+    return match ($command) {
         'add-post' => 'addPost',
         'read-posts' => 'readAllPosts',
         'read-post' => 'readPost',
@@ -28,10 +31,8 @@ function parseComand(): string {
         'search-posts' => 'searchForPosts',
         'delete-post' => 'deletePost',
         'quiz' => 'Quiz',
-    ];
-
-    if (isset($_SERVER['argv'][1]) && isset($commands[$_SERVER['argv'][1]])) {
-        $functionName = $commands[$_SERVER['argv'][1]];
-    }
-    return $functionName ?? "handlerHelp";
+        'init' => 'initDB',
+        'seed' => 'seedDB',
+        default => 'handlerHelp',
+    };
 }

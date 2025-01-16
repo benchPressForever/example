@@ -3,6 +3,9 @@
 
 require_once "vendor/autoload.php";
 
-$result = main();
-
-echo $result;
+try{
+    $result = main();
+    echo $result;
+}catch (Exception $e){
+    echo handlerError($e->getMessage());
+}

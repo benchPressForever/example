@@ -1,175 +1,124 @@
 <?php
 
-$ini_array = parse_ini_file(dirname(__DIR__)."/config.ini");
-$GLOBALS['PathDb'] = $ini_array['path_db'];
-
-function addPost()
+function addPost():string
 {
-    $postNoValid = true;
-    $text = "";
-    $title = "";
+    $db = getDB();
 
-    while($postNoValid){
-        $title = readline("Введите заголовок поста: ");
-        $text = readline("Введите текст поста: ");
+    $stmt = $db->query("SELECT * FROM categories");
+    $categories = $stmt->fetchAll();
 
-        if(!empty($title) and !empty($text)) $postNoValid = false;
-        else echo handlerError("Ошибка!Пустая строка");
+    echo "Категории постов:\n";
+    foreach ($categories as $category) {
+        echo $category['id'].' - '.$category['category'].PHP_EOL;
     }
 
-    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
+    $noValid = true;
+    while($noValid){
+        $id = (int)readline("\nВведите id категории: ");
+        if(empty($id)) {continue;}
 
-    if(is_readable($DbFileName)){
-        $file = fopen($DbFileName, "a");
-        fwrite($file, "$title;$text\n");
-        fclose($file);
-        return "Пост добавлен!";
-    }
-    return handlerError("Ошибка!Не удалось добавить пост");
-}
-
-
-function readAllPosts()
-{
-    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
-
-    if(is_readable($DbFileName)) {
-        $file = fopen($DbFileName, "r");
-
-        $text = "";
-
-        while(!feof($file)){
-            $readArray = explode(";",fgets($file));
-            $text .= $readArray[0].PHP_EOL;
-        }
-
-        echo $text;
-        fclose($file);
-
-        return "\nПосты успешно получены!";
-    }
-    else {
-        return handlerError("Ошибка!Не удалось найти файл!");
-    }
-
-}
-
-function readPost()
-{
-    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
-
-    if(is_readable($DbFileName)) {
-        $file = fopen($DbFileName, "r");
-
-        $text = "";
-        $numberPost = -1;
-
-
-        if(count($_SERVER['argv']) > 2) $numberPost = (int)$_SERVER['argv'][2];
-        else return handlerError("Ошибка!Не введён номер поста!");
-
-        if($numberPost <= 0) return handlerError("Ошибка!Введён некорректный номер поста!");
-
-
-        for($index = 1;!feof($file);$index++){
-            $readArray = explode(";",fgets($file));
-            if($index != $numberPost) continue;
-            else {
-                $text = implode("\n",$readArray);
+        foreach ($categories as $category) {
+            if($category['id'] == $id) {
+                $noValid = false;
                 break;
             }
         }
-
-        echo $text;
-        fclose($file);
-
-        if(empty($text)) return handlerError("Ошибка!Не удалось получить пост!");
-        return "\nПост успешно получен!";
-    }
-    else {
-        return handlerError("Ошибка!Не удалось найти файл!");
     }
 
+
+    do {
+        $title = readline("Введите заголовок поста: ");
+    } while (empty($title));
+
+    do {
+        $text = readline("Введите текст поста: ");
+    } while (empty($text));
+
+
+    $db->query("INSERT INTO posts  (title,text,id_category) VALUES ('$title','$text','$id')");
+    return "Пост добавлен!";
 }
 
-function clearPosts()
+
+function readAllPosts():string
 {
-    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
-    if(is_readable($DbFileName)) {
-        $file = fopen($DbFileName, "w");
-        fwrite($file, "");
-        fclose($file);
-        return "База данных успешно очищена!";
+    $db = getDB();
+    $stmt = $db->query("SELECT p.id post_id, c.id cat_id, c.category, p.title, p.text FROM posts p JOIN categories c ON p.id_category = c.id;");
+
+    $result = $stmt->fetchAll();
+
+    foreach($result as $post){
+        echo $post['post_id']." - ".$post['category']." - ".$post['title']." - ".$post['text']."\n";
     }
-    return handlerError("Ошибка!Не удалось найти файл!");
+
+    return "\nВсе посты успешно получены!\n";
 }
 
-function searchForPosts()
+function readPost():string
 {
-    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
+    $db = getDB();
 
-    if(is_readable($DbFileName)) {
-        $file = fopen($DbFileName, "r");
+    do {
+        $id = (int)readline("Введите id поста: ");
+    } while (empty($id));
 
-        $text = "";
-        $title = "";
+    $stmt = $db->prepare("SELECT p.id post_id, c.id cat_id, c.category, p.title, p.text FROM posts p JOIN categories c ON p.id_category = c.id WHERE p.id = :id;");
 
-        while(empty($title)){
-            $title = readline("Введите заголовок поста: ");
-            if(empty($title)) echo handlerError("Ошибка!Пустая строка");
-        }
+    $stmt->execute(['id' => $id]);
+    $post = $stmt->fetch();
 
-        while(!feof($file)){
-            $readArray = explode(";",fgets($file));
-            if(strcmp($readArray[0],$title) == 0) $text .= implode("\n",$readArray);
-        }
-
-        echo $text;
-        fclose($file);
-
-        if(empty($text)) return handlerError("Ошибка!Не удалось найти пост!");
-        return "\nПосты успешно найдены!";
+    if(empty($post)){
+        return "Пост с id = $id не найден";
     }
-    else {
-        return handlerError("Ошибка!Не удалось найти файл!");
+    return $post['post_id']." - ".$post['category']." - ".$post['title']." - ".$post['text']."\n";
+
+}
+
+function clearPosts():string
+{
+    $db = getDB();
+    $db->query("DELETE FROM posts;");
+    return "Посты успешно удалены!";
+}
+
+function searchForPosts():string
+{
+    $db = getDB();
+
+    do {
+        $subTitle = readline("Введите часть текста заголовка для поиска постов: ");
+    } while (empty($subTitle));
+
+    $stmt = $db->prepare("SELECT * FROM posts WHERE title LIKE :title;");
+    $stmt->execute(['title' => "%$subTitle%"]);
+    $posts = $stmt->fetchAll();
+
+    if(empty($posts)){
+        return handlerError("Не удалось получить посты!");
     }
+
+    foreach($posts as $post){
+        echo $post['id']." - ".$post['title']." - ".$post['text']."\n";
+    }
+    return "Посты успешно получены!";
 }
 
 
 
-function deletePost(){
-    $DbFileName = dirname(__DIR__).$GLOBALS['PathDb'];
+function deletePost():string{
+    $db = getDB();
 
-    if(is_readable($DbFileName)) {
-        $file = fopen($DbFileName, "r");
+    do {
+        $id = (int)readline("Введите id поста: ");
+    } while (empty($id));
 
-        $readArray = file($DbFileName, FILE_IGNORE_NEW_LINES);
+    $stmt = $db->prepare("DELETE FROM posts WHERE id = :id;");
+    $stmt->execute(['id' => $id]);
 
-        fclose($file);
-
-        $numberPost = -1;
-
-        if(count($_SERVER['argv']) > 2) $numberPost = (int)$_SERVER['argv'][2];
-        else return handlerError("Ошибка!Не введён номер поста!");
-
-        if($numberPost <= 0) return handlerError("Ошибка!Введён некорректный номер поста!");
-
-        if(isset($readArray[$numberPost-1])){
-            unset($readArray[$numberPost-1]);
-        }
-        else{
-            return handlerError("Ошибка!Пост не существует!");
-        }
-
-        $readArray[] = "";
-
-        file_put_contents($DbFileName, implode("\n",$readArray));
-
-
-        return "\nПост успешно удалён!";
+    if($stmt->rowCount() > 0){
+        return "Пост успешно удалён!";
     }
-    else {
-        return handlerError("Ошибка!Не удалось найти файл!");
-    }
+    return handlerError("Не удалось удалить пост!");
+
 }
 
