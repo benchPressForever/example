@@ -35,7 +35,8 @@ function addPost():string
     } while (empty($text));
 
 
-    $db->query("INSERT INTO posts  (title,text,id_category) VALUES ('$title','$text','$id')");
+    $stmt =  $db->prepare("INSERT INTO posts  (title,text,id_category) VALUES (:title,:text,:id)");
+    $stmt->execute(['title' => $title,'text' => $text,'id' => $id]);
     return "Пост добавлен!";
 }
 
@@ -43,15 +44,21 @@ function addPost():string
 function readAllPosts():string
 {
     $db = getDB();
-    $stmt = $db->query("SELECT p.id post_id, c.id cat_id, c.category, p.title, p.text FROM posts p JOIN categories c ON p.id_category = c.id;");
+    $stmt = $db->query("SELECT p.id post_id, c.id cat_id, 
+                                     c.category, p.title, p.text 
+                                     FROM posts p 
+                                     JOIN categories c 
+                                     ON p.id_category = c.id;");
 
-    $result = $stmt->fetchAll();
+    $posts = $stmt->fetchAll();
 
-    foreach($result as $post){
-        echo $post['post_id']." - ".$post['title']." - ".$post['text']." - ".$post['cat_id']." - ".$post['category']."\n";
+    $result = "";
+
+    foreach($posts as $post){
+        $result .= $post['post_id']." - ".$post['title']." - ".$post['text']." - ".$post['cat_id']." - ".$post['category']."\n";
     }
 
-    return "\nВсе посты успешно получены!\n";
+    return $result."\nВсе посты успешно получены!\n";
 }
 
 function readPost():string
@@ -62,8 +69,12 @@ function readPost():string
         $id = (int)readline("Введите id поста: ");
     } while (empty($id));
 
-    $stmt = $db->prepare("SELECT p.id post_id, c.id cat_id, c.category, p.title, p.text FROM posts p JOIN categories c ON p.id_category = c.id WHERE p.id = :id;");
-
+    $stmt = $db->prepare("SELECT p.id post_id,c.id cat_id, 
+                                       c.category, p.title, p.text 
+                                       FROM posts p 
+                                       JOIN categories c 
+                                       ON p.id_category = c.id 
+                                       WHERE p.id = :id;");
     $stmt->execute(['id' => $id]);
     $post = $stmt->fetch();
 
@@ -97,10 +108,12 @@ function searchForPosts():string
         return handlerError("Не удалось получить посты!");
     }
 
+    $result = "";
+
     foreach($posts as $post){
-        echo $post['id']." - ".$post['title']." - ".$post['text']."\n";
+        $result .= $post['id']." - ".$post['title']." - ".$post['text']."\n";
     }
-    return "Посты успешно получены!";
+    return $result."\nПосты успешно получены!";
 }
 
 
